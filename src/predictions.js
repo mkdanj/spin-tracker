@@ -3,7 +3,7 @@
 
 const CONFIDENCE_RANK = { HIGH: 2, MEDIUM: 1, LOW: 0 }
 
-function confidenceOf(frequency) {
+export function confidenceOf(frequency) {
   if (frequency < 10) return 'LOW'
   if (frequency < 30) return 'MEDIUM'
   return 'HIGH'
