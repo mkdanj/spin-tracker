@@ -262,6 +262,18 @@ export default function App() {
         })
       }
 
+      // JUMP EVENT is a separate cross-spin signal from RESULT's distance-based JUMP:
+      // it fires when the PREVIOUS spin's canonical prediction included the number that
+      // actually landed on THIS spin (i.e. the prediction "jumped ahead" by one spin).
+      for (let i = 1; i < built.length; i++) {
+        built[i].jumpEvent = built[i - 1].canonicalSet.includes(built[i].landed_number)
+        built[i].jumpEventSourceSpin = built[i - 1].spin_number
+      }
+      if (built.length > 0) {
+        built[0].jumpEvent = false
+        built[0].jumpEventSourceSpin = null
+      }
+
       setReviewSpins(built)
       setCommitSummary(null)
       setLayer('layer3')
@@ -281,7 +293,8 @@ export default function App() {
     setCommitting(true)
     const summary = { patternWrites: 0, accidentsLogged: 0, jumpsLogged: 0, approvedCount: 0 }
     try {
-      for (const spin of reviewSpins) {
+      for (let spinIdx = 0; spinIdx < reviewSpins.length; spinIdx++) {
+        const spin = reviewSpins[spinIdx]
         const isClean = spin.spin_status === 'CLEAN'
         const isSuspectCroupier = spin.spin_status === 'SUSPECT_CROUPIER'
         const isSuspectBall = spin.spin_status === 'SUSPECT_BALL'
@@ -367,9 +380,11 @@ export default function App() {
           summary.accidentsLogged += 1
         }
 
-        // Jump events: logged for CLEAN/SUSPECT_CROUPIER spins that classified as JUMP
-        // (SUSPECT_BALL anomalies are already captured in accident_log).
-        if (spin.result === 'JUMP' && !isSuspectBall) {
+        // Jump events are a separate cross-spin signal from RESULT's distance-based JUMP:
+        // logged when the PREVIOUS spin's canonical prediction included the number that
+        // actually landed on THIS spin (SUSPECT_BALL anomalies already go to accident_log).
+        if (spin.jumpEvent && !isSuspectBall) {
+          const previousSpin = reviewSpins[spinIdx - 1]
           await supabase.from('jump_events').insert([
             {
               session_id: sessionId,
@@ -380,8 +395,8 @@ export default function App() {
               starting_number: spin.starting_number,
               direction: spin.direction,
               landed_number: spin.landed_number,
-              predicted_numbers: spin.canonicalSet,
-              jump_distance: spin.distance,
+              predicted_numbers: previousSpin ? previousSpin.canonicalSet : spin.canonicalSet,
+              jump_distance: null,
             },
           ])
           summary.jumpsLogged += 1
@@ -643,7 +658,13 @@ export default function App() {
                       Neighbours: {spin.neighbours.map(formatNumber).join(', ')}
                     </p>
 
-                    {spin.result === 'JUMP' && <p className="jump-flag">⚡ Jump event (distance {spin.distance})</p>}
+                    {spin.result === 'JUMP' && (
+                      <p className="jump-distance-flag">⚡ 2 wheel positions from prediction</p>
+                    )}
+
+                    <p className={`jump-event ${spin.jumpEvent ? 'jump-event-yes' : 'jump-event-no'}`}>
+                      JUMP EVENT: {spin.jumpEvent ? `Yes — predicted by Spin ${spin.jumpEventSourceSpin}` : 'No'}
+                    </p>
 
                     <div className="approval-row">
                       {spin.spin_status === 'SUSPECT_BALL' ? (

@@ -64,9 +64,15 @@ and `src/wheel.js` for the wheel-order/classification logic.
 
 Two judgment calls made where the spec was ambiguous (flagged here for correction if
 wrong):
-- **NEAR MISS vs JUMP** is defined by physical wheel-position distance from the
-  canonical predicted set: 1 pocket away = NEAR MISS, 2 pockets away = JUMP, more
-  than that = MISS.
+- **NEAR MISS vs JUMP (the RESULT field)** is defined by physical wheel-position
+  distance from the canonical predicted set: 1 pocket away = NEAR MISS, 2 pockets
+  away = JUMP, more than that = MISS. This is a per-spin, same-spin classification.
+- **JUMP EVENT is a separate, cross-spin signal** (confirmed 2026-08-20, not
+  distance-based): it fires when the *previous* spin's canonical prediction
+  included the number that actually landed on *this* spin — i.e. the prediction
+  "arrived" one spin late. It's shown as its own field on the review card (Yes/No,
+  independent of the RESULT badge) and is what actually gets written to
+  `jump_events` on commit.
 - **American "00"** is stored as the sentinel integer `37` in every number column
   (so they can stay INTEGER); the UI always displays it back as "00".
 
