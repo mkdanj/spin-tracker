@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { rankCandidates, baselineRate, confidenceOf } from './predictions'
 import {
@@ -39,6 +39,8 @@ export default function App() {
   const [croupierNickname, setCroupierNickname] = useState('')
   const [rouletteType, setRouletteType] = useState('european')
   const [sessionId, setSessionId] = useState(null)
+  const [knownTables, setKnownTables] = useState([])
+  const [knownCroupiers, setKnownCroupiers] = useState([])
 
   // Layer 2 fields
   const [spinNumber, setSpinNumber] = useState(0)
@@ -55,6 +57,47 @@ export default function App() {
   const [reviewSpins, setReviewSpins] = useState([])
   const [committing, setCommitting] = useState(false)
   const [commitSummary, setCommitSummary] = useState(null)
+
+  // Load distinct table/croupier names seen in past sessions, for the Layer 1 dropdowns.
+  // Datalists (not plain <select>s) so manual entry of a brand-new table/croupier still works.
+  const loadKnownOptions = async () => {
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('table_id, croupier_id')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error loading known tables/croupiers:', error)
+      return
+    }
+
+    setKnownTables([...new Set(data.map((s) => s.table_id).filter(Boolean))])
+    setKnownCroupiers([...new Set(data.map((s) => s.croupier_id).filter(Boolean))])
+  }
+
+  useEffect(() => {
+    if (layer === 'layer1') loadKnownOptions()
+  }, [layer])
+
+  // If this exact table+croupier combo has a recorded nickname from a past session, fill it
+  // in automatically (without overwriting anything the user already typed themselves).
+  const maybeAutofillNickname = async (table, croupier) => {
+    const t = table.trim()
+    const c = croupier.trim()
+    if (!t || !c) return
+
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('croupier_nickname')
+      .eq('table_id', t)
+      .eq('croupier_id', c)
+      .not('croupier_nickname', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    if (error || !data || data.length === 0) return
+    setCroupierNickname((current) => (current.trim() ? current : data[0].croupier_nickname))
+  }
 
   // ── LAYER 1: Start Session ─────────────────────────────────────────────────────────
   const handleStartSession = async () => {
@@ -443,16 +486,30 @@ export default function App() {
           <h1>Start New Session</h1>
           <input
             type="text"
+            list="known-tables"
             placeholder="Table name (e.g., Table 5)"
             value={tableName}
             onChange={(e) => setTableName(e.target.value)}
+            onBlur={() => maybeAutofillNickname(tableName, croupierName)}
           />
+          <datalist id="known-tables">
+            {knownTables.map((t) => (
+              <option key={t} value={t} />
+            ))}
+          </datalist>
           <input
             type="text"
+            list="known-croupiers"
             placeholder="Croupier name (e.g., Jean)"
             value={croupierName}
             onChange={(e) => setCroupierName(e.target.value)}
+            onBlur={() => maybeAutofillNickname(tableName, croupierName)}
           />
+          <datalist id="known-croupiers">
+            {knownCroupiers.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
           <input
             type="text"
             placeholder="Croupier nickname (optional)"

@@ -76,6 +76,21 @@ wrong):
 - **American "00"** is stored as the sentinel integer `37` in every number column
   (so they can stay INTEGER); the UI always displays it back as "00".
 
+## Layer 1: table/croupier dropdowns (2026-08-20)
+
+Start New Session's table name and croupier name fields are now `<input list>` +
+`<datalist>` combos, populated from the distinct `table_id`/`croupier_id` values
+across all past `sessions` rows: type-to-filter like a dropdown, but manual entry of
+a brand-new table or croupier still works exactly as before (a datalist never blocks
+free text, unlike a plain `<select>`). The list is refetched every time Layer 1 is
+shown, so a table/croupier used in the session you just committed appears immediately
+next time.
+
+Croupier nickname auto-fills on blur of either field: if the current table+croupier
+combo has a nickname on file from any past session (most recent one wins), it's
+filled in automatically — but only into an empty nickname field, so it never
+overwrites something you've already typed.
+
 ## Known limitations carried over from the spec
 
 - **Small-sample confidence.** Same caveat as before: predictions are ranked by a
