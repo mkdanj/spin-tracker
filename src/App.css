@@ -1,0 +1,221 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f5f5;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.layer {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.layer1,
+.layer2 {
+  max-width: 500px;
+}
+
+.layer1 {
+  text-align: center;
+}
+
+.layer1 h1 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.layer1 input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.layer1 button,
+.input-section button {
+  width: 100%;
+  padding: 12px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.layer1 button:hover {
+  background: #1565c0;
+}
+
+.layer2 {
+  max-width: 700px;
+}
+
+.layer2 .header {
+  border-bottom: 2px solid #eee;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.layer2 .header h2 {
+  color: #333;
+  font-size: 16px;
+}
+
+.input-section {
+  margin-bottom: 30px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.input-group input:disabled,
+.input-group select:disabled {
+  background: #f9f9f9;
+  color: #666;
+}
+
+.auto-filled {
+  font-size: 12px;
+  color: #999;
+  margin-left: 5px;
+}
+
+.input-section button {
+  margin-top: 10px;
+}
+
+.history-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.history-section h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.spin-history {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.spin-entry {
+  padding: 10px;
+  background: #f9f9f9;
+  border-left: 3px solid #1976d2;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.badge.hit {
+  background: #2e7d32;
+}
+
+.badge.miss {
+  background: #c62828;
+}
+
+.layer3.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 500px;
+  z-index: 1000;
+}
+
+.modal-content {
+  padding: 30px;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.tracking-info {
+  background: #f0f7ff;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.tracking-info p {
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.tracked-numbers {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.number-badge {
+  display: inline-block;
+  background: #1976d2;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.modal-content button {
+  margin-top: 15px;
+}
